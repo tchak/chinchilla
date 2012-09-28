@@ -1,16 +1,39 @@
 require 'chinchilla/runner/example'
-require 'chinchilla/runner/test_runner'
+require 'chinchilla/runner/test'
 
 module Chinchilla
   class Runner
-    attr_reader :suite, :io
-
-    def initialize(io=STDOUT)
-      @io = io
+    def self.run(options={})
+      self.new(options).run
     end
 
-    def test_runner(test)
-      TestRunner.new(self, test)
+    def initialize(options)
+      options[:urls] = [options.delete(:url)] if options.has_key?(:url)
+      @options = options
+    end
+
+    def io
+      @io ||= @options[:io] || STDOUT
+    end
+
+    def urls
+      @urls ||= @options[:urls] || ['/']
+    end
+
+    def driver
+      @driver ||= @options[:driver] || :poltergeist
+    end
+
+    def application
+      @application ||= @options[:application] || default_application
+    end
+
+    def default_application
+      defined?(Rails) ? Rails.application : nil
+    end
+
+    def tests
+      @tests ||= urls.map {|url| Test.new(self, url) }
     end
 
     def run
@@ -31,7 +54,7 @@ module Chinchilla
     end
 
     def examples
-      test_runners.map { |test_runner| test_runner.examples }.flatten
+      tests.map { |test| test.examples }.flatten
     end
 
     def failed_examples
@@ -39,31 +62,21 @@ module Chinchilla
     end
 
     def passed?
-      test_runners.all? { |test_runner| test_runner.passed? }
+      tests.all? { |test| test.passed? }
     end
 
     def dots
-      test_runners.map { |test_runner| test_runner.dots }.join
+      tests.map { |test| test.dots }.join
     end
 
     def failure_messages
       unless passed?
-        test_runners.map { |test_runner| test_runner.failure_messages }.compact.join("\n\n")
+        tests.map { |test| test.failure_messages }.compact.join("\n\n")
       end
     end
 
     def session
-      @session ||= Capybara::Session.new(Chinchilla.driver, Chinchilla.application)
-    end
-
-    def suite
-      @suite ||= Chinchilla::Suite.new(Chinchilla.mounted_at)
-    end
-
-    protected
-
-    def test_runners
-      @test_runners ||= suite.tests.map { |test| TestRunner.new(self, test) }
+      @session ||= Capybara::Session.new(driver, application)
     end
   end
 end

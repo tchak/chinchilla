@@ -13,6 +13,8 @@ Gem::Specification.new do |gem|
   gem.homepage      = ""
 
   gem.add_dependency 'capybara'
+  gem.add_dependency 'poltergeist'
+  gem.add_dependency 'colorize'
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
