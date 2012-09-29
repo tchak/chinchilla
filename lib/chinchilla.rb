@@ -1,7 +1,6 @@
 require "chinchilla/version"
 
 require "capybara"
-require "capybara/poltergeist"
 require "colorize"
 
 require "chinchilla/runner"

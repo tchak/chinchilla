@@ -24,6 +24,10 @@ module Chinchilla
       @driver ||= @options[:driver] || :poltergeist
     end
 
+    def poltergeist?
+      driver == :poltergeist
+    end
+
     def application
       @application ||= @options[:application] || default_application
     end
@@ -76,7 +80,12 @@ module Chinchilla
     end
 
     def session
-      @session ||= Capybara::Session.new(driver, application)
+      @session ||= begin
+        if poltergeist? && !defined?(Capybara::Poltergeist)
+          require "capybara/poltergeist"
+        end
+        Capybara::Session.new(driver, application)
+      end
     end
   end
 end
