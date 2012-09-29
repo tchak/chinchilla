@@ -39,6 +39,8 @@ module Chinchilla
         @results ||= begin
           session.visit(url)
 
+          session.execute_script(runner_js)
+
           dots_printed = 0
 
           begin
@@ -55,6 +57,10 @@ module Chinchilla
             Example.new(row)
           end
         end
+      end
+
+      def runner_js
+        "(function() {"+File.read(File.expand_path("../runner.js", __FILE__))+"})();"
       end
 
       def failed_examples
