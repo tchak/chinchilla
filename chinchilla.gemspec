@@ -14,7 +14,9 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'capybara'
   gem.add_dependency 'poltergeist'
-  gem.add_dependency 'rocha'
+  gem.add_dependency 'rocha', '~> 0.2.1'
+  gem.add_dependency 'rake'
+  gem.add_development_dependency "rspec"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

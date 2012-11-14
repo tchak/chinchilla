@@ -1,12 +1,8 @@
 module Chinchilla
   class Runner
-    def self.start(options={})
-      new(options).run
-    end
-
     attr_reader :reporter
 
-    def initialize(options)
+    def initialize(options={})
       @options = options
       @reporter = Rocha::Reporter.new(*formatters)
     end
@@ -62,11 +58,21 @@ module Chinchilla
     end
 
     def formatters
-      @formatters ||= @options[:formatters] || default_formatters
+      @formatters ||= load_formatters(@options[:formatters]) || default_formatters
     end
 
     def default_application
       defined?(Rails) ? Rails.application : nil
+    end
+
+    def load_formatters(formatters)
+      if formatters.kind_of?(String)
+        formatters.split(',').map do |formatter|
+          eval(formatter).new(STDOUT)
+        end
+      else
+        formatters
+      end
     end
 
     def default_formatters
