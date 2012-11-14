@@ -8,13 +8,13 @@ Gem::Specification.new do |gem|
   gem.version       = Chinchilla::VERSION
   gem.authors       = ["tchak"]
   gem.email         = ["paul@chavard.net"]
-  gem.description   = %q{QUnit test runner}
-  gem.summary       = %q{Run QUnit test on Capybara}
+  gem.description   = %q{mocha test runner}
+  gem.summary       = %q{Run mocha test on Capybara}
   gem.homepage      = ""
 
   gem.add_dependency 'capybara'
   gem.add_dependency 'poltergeist'
-  gem.add_dependency 'colorize'
+  gem.add_dependency 'rocha'
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

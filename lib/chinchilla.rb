@@ -1,13 +1,9 @@
-require "chinchilla/version"
-
 require "capybara"
-require "colorize"
-
+require "rocha"
 require "chinchilla/runner"
 
-if defined?(::Rails)
-  module Chinchilla
-    class Engine < ::Rails::Engine
-    end
+module Chinchilla
+  def self.start(options={})
+    Runner.start(options)
   end
 end
