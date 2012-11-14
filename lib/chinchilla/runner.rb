@@ -1,23 +1,22 @@
-require 'chinchilla/runner/example'
-require 'chinchilla/runner/test'
-
 module Chinchilla
   class Runner
-    def self.run(options={})
-      self.new(options).run
+    def self.start(options={})
+      new(options).run
     end
+
+    def self.run(options={})
+      new(options).run
+    end
+
+    attr_reader :reporter
 
     def initialize(options)
-      options[:urls] = [options.delete(:url)] if options.has_key?(:url)
       @options = options
+      @reporter = Rocha::Reporter.new(*formatters)
     end
 
-    def io
-      @io ||= @options[:io] || STDOUT
-    end
-
-    def urls
-      @urls ||= @options[:urls] || ['/']
+    def url
+      @url ||= @options[:url] || '/'
     end
 
     def driver
@@ -28,55 +27,27 @@ module Chinchilla
       driver == :poltergeist
     end
 
-    def application
-      @application ||= @options[:application] || default_application
-    end
-
-    def default_application
-      defined?(Rails) ? Rails.application : nil
-    end
-
-    def tests
-      @tests ||= urls.map {|url| Test.new(self, url) }
-    end
-
     def run
-      before = Time.now
+      session.visit(url)
 
-      io.puts ""
-      io.puts dots.to_s
-      io.puts ""
-      if failure_messages
-        io.puts failure_messages
-        io.puts ""
-      end
+      events_consumed = 0
+      done = false
+      begin
+        sleep 0.1
+        events = JSON.parse(session.evaluate_script('window.mocha.getEvents()'))
+        if events
+          events[events_consumed..-1].each do |event|
+            done = true if event['event'] == 'end'
+            reporter.process_mocha_event(event)
+          end
 
-      seconds = "%.2f" % (Time.now - before)
-      io.puts "Finished in #{seconds} seconds"
-      io.puts "#{examples.size} assertions, #{failed_examples.size} failures"
-      passed?
-    end
+          events_consumed = events.length
+        end
+      end until done
 
-    def examples
-      tests.map { |test| test.examples }.flatten
-    end
-
-    def failed_examples
-      examples.select { |example| not example.passed? }
-    end
-
-    def passed?
-      tests.all? { |test| test.passed? }
-    end
-
-    def dots
-      tests.map { |test| test.dots }.join
-    end
-
-    def failure_messages
-      unless passed?
-        tests.map { |test| test.failure_messages }.compact.join("\n\n")
-      end
+      reporter.passed?
+    rescue => e
+      raise e, "Error communicating with browser process: #{e}", e.backtrace
     end
 
     def session
@@ -86,6 +57,24 @@ module Chinchilla
         end
         Capybara::Session.new(driver, application)
       end
+    end
+
+    private
+
+    def application
+      @application ||= @options[:application] || default_application
+    end
+
+    def formatters
+      @options ||= @options[:formatters] || default_formatters
+    end
+
+    def default_application
+      defined?(Rails) ? Rails.application : nil
+    end
+
+    def default_formatters
+      [Rocha::Formatter.new(STDOUT)]
     end
   end
 end
