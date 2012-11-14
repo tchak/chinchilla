@@ -4,10 +4,6 @@ module Chinchilla
       new(options).run
     end
 
-    def self.run(options={})
-      new(options).run
-    end
-
     attr_reader :reporter
 
     def initialize(options)
@@ -66,7 +62,7 @@ module Chinchilla
     end
 
     def formatters
-      @options ||= @options[:formatters] || default_formatters
+      @formatters ||= @options[:formatters] || default_formatters
     end
 
     def default_application
