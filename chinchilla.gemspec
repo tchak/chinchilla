@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Chinchilla::VERSION
   gem.authors       = ["tchak"]
   gem.email         = ["paul@chavard.net"]
-  gem.description   = %q{QUnit test runner}
-  gem.summary       = %q{Run QUnit test on Capybara}
+  gem.description   = %q{mocha test runner}
+  gem.summary       = %q{Run mocha test on Capybara}
   gem.homepage      = ""
 
   gem.add_dependency 'capybara'
