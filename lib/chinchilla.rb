@@ -4,6 +4,6 @@ require "chinchilla/runner"
 
 module Chinchilla
   def self.start(options={})
-    Runner.start(options)
+    Runner.new(options).run
   end
 end
