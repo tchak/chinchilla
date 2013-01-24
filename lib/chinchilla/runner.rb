@@ -19,14 +19,20 @@ module Chinchilla
       driver == :poltergeist
     end
 
+    def timeout
+      @timeout ||= @options[:timeout] || 0.5
+    end
+
     def run
       session.visit(url)
 
       events_consumed = 0
       done = false
+      raise_after = Time.now.to_f + timeout
       begin
         sleep 0.1
-        events = JSON.parse(session.evaluate_script('window.mocha.getEvents()'))
+        json_events = session.evaluate_script(script_content)
+        events = json_events ? JSON.parse(json_events) : nil
         if events
           events[events_consumed..-1].each do |event|
             done = true if event['event'] == 'end'
@@ -34,6 +40,9 @@ module Chinchilla
           end
 
           events_consumed = events.length
+          raise_after = nil
+        elsif raise_after && raise_after < Time.now.to_f
+          raise 'Timeout'
         end
       end until done
 
@@ -52,6 +61,10 @@ module Chinchilla
     end
 
     private
+
+    def script_content
+      'window.mocha && window.mocha.getEvents && window.mocha.getEvents()'
+    end
 
     def application
       @application ||= @options[:application] || default_application
