@@ -8,13 +8,13 @@ Gem::Specification.new do |gem|
   gem.version       = Chinchilla::VERSION
   gem.authors       = ["tchak"]
   gem.email         = ["paul@chavard.net"]
-  gem.description   = %q{mocha test runner}
-  gem.summary       = %q{Run mocha test on Capybara}
+  gem.description   = %q{Mocha ruby test runner}
+  gem.summary       = %q{}
   gem.homepage      = ""
 
   gem.add_dependency 'capybara'
   gem.add_dependency 'poltergeist'
-  gem.add_dependency 'rocha', '~> 0.2.1'
+  gem.add_dependency 'rocha'
   gem.add_dependency 'rake'
   gem.add_development_dependency "rspec"
 
